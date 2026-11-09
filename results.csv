@@ -1,0 +1,37 @@
+qid,prompt,model,generated_sql,generated_value,gold_value,error,is_correct
+1,How many teams are in the database?,gpt-oss:20b,SELECT COUNT(*) FROM team,6,6,,True
+2,How many players are currently unattached (teamId is NULL)?,gpt-oss:20b,SELECT COUNT(*) FROM player WHERE teamId IS NULL,1,1,,True
+3,How many matches have been scheduled in total?,gpt-oss:20b,SELECT COUNT(*) FROM `match`,8,8,,True
+4,How many matches have not yet been played (both scores not recorded)?,gpt-oss:20b,SELECT COUNT(*) FROM `match` WHERE `homeGoals` IS NULL AND `awayGoals` IS NULL,1,1,,True
+5,How many distinct players have at least one appearance?,gpt-oss:20b,SELECT COUNT(DISTINCT playerId) FROM appearance,10,10,,True
+6,How many players have participated in two or more appearances?,gpt-oss:20b,"SELECT COUNT(*) AS num_players
+FROM (
+  SELECT playerId
+  FROM appearance
+  GROUP BY playerId
+  HAVING COUNT(*) >= 2
+) AS t",10,10,,True
+7,What is the total number of goals scored by Real Madrid across all matches (home plus away)?,gpt-oss:20b,"SELECT SUM(
+  CASE
+    WHEN m.homeTeamId = t.teamId THEN m.homeGoals
+    WHEN m.awayTeamId = t.teamId THEN m.awayGoals
+  END
+) AS total_goals
+FROM `match` m
+JOIN `team` t ON t.name = 'Real Madrid'
+WHERE m.homeTeamId = t.teamId OR m.awayTeamId = t.teamId",3,3,,True
+1,How many teams are in the database?,llama3.1:8b,SELECT COUNT(teamId) FROM team,6,6,,True
+2,How many players are currently unattached (teamId is NULL)?,llama3.1:8b,SELECT COUNT(playerId) FROM player WHERE teamId IS NULL,1,1,,True
+3,How many matches have been scheduled in total?,llama3.1:8b,SELECT COUNT(matchId) FROM match,,8,"(mysql.connector.errors.ProgrammingError) 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'match' at line 1
+[SQL: SELECT COUNT(matchId) FROM match]
+(Background on this error at: https://sqlalche.me/e/21/f405)",False
+4,How many matches have not yet been played (both scores not recorded)?,llama3.1:8b,SELECT COUNT(*) FROM match WHERE homeGoals IS NULL AND awayGoals IS NULL,,1,"(mysql.connector.errors.ProgrammingError) 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'match WHERE homeGoals IS NULL AND awayGoals IS NULL' at line 1
+[SQL: SELECT COUNT(*) FROM match WHERE homeGoals IS NULL AND awayGoals IS NULL]
+(Background on this error at: https://sqlalche.me/e/21/f405)",False
+5,How many distinct players have at least one appearance?,llama3.1:8b,SELECT COUNT(DISTINCT playerId) FROM appearance,10,10,,True
+6,How many players have participated in two or more appearances?,llama3.1:8b,SELECT COUNT(DISTINCT player.playerId) FROM appearance AS T1 INNER JOIN appearance AS T2 ON T1.playerId = T2.playerId AND T1.matchId < T2.matchId,,10,"(mysql.connector.errors.ProgrammingError) 1054 (42S22): Unknown column 'player.playerId' in 'field list'
+[SQL: SELECT COUNT(DISTINCT player.playerId) FROM appearance AS T1 INNER JOIN appearance AS T2 ON T1.playerId = T2.playerId AND T1.matchId < T2.matchId]
+(Background on this error at: https://sqlalche.me/e/21/f405)",False
+7,What is the total number of goals scored by Real Madrid across all matches (home plus away)?,llama3.1:8b,SELECT SUM(CASE WHEN T2.name = 'Real Madrid' THEN T1.awayGoals ELSE T1.homeGoals END) FROM match AS T1 INNER JOIN team AS T2 ON T1.homeTeamId = T2.teamId OR T1.awayTeamId = T2.teamId,,3,"(mysql.connector.errors.ProgrammingError) 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'match AS T1 INNER JOIN team AS T2 ON T1.homeTeamId = T2.teamId OR T1.awayTeamId ' at line 1
+[SQL: SELECT SUM(CASE WHEN T2.name = 'Real Madrid' THEN T1.awayGoals ELSE T1.homeGoals END) FROM match AS T1 INNER JOIN team AS T2 ON T1.homeTeamId = T2.teamId OR T1.awayTeamId = T2.teamId]
+(Background on this error at: https://sqlalche.me/e/21/f405)",False

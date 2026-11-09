@@ -1,0 +1,4 @@
+langchain==1.4.9
+langchain-ollama==1.1.0
+sqlalchemy==2.1.8
+mysql-connector-python==26.10.0

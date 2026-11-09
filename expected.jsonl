@@ -1,0 +1,7 @@
+{"qid":1,"sql":"SELECT COUNT(*) FROM Team;"}
+{"qid":2,"sql":"SELECT COUNT(*) FROM Player WHERE teamId IS NULL;"}
+{"qid":3,"sql":"SELECT COUNT(*) FROM `Match`;"}
+{"qid":4,"sql":"SELECT COUNT(*) FROM `Match` WHERE homeGoals IS NULL AND awayGoals IS NULL;"}
+{"qid":5,"sql":"SELECT COUNT(DISTINCT playerId) FROM Appearance;"}
+{"qid":6,"sql":"SELECT COUNT(*) FROM (SELECT playerId FROM Appearance GROUP BY playerId HAVING COUNT(*) >= 2) AS qualifying_players;"}
+{"qid":7,"sql":"SELECT COALESCE(SUM(CASE WHEN m.homeTeamId = t.teamId THEN COALESCE(m.homeGoals, 0) ELSE 0 END + CASE WHEN m.awayTeamId = t.teamId THEN COALESCE(m.awayGoals, 0) ELSE 0 END), 0) FROM Team AS t JOIN `Match` AS m ON m.homeTeamId = t.teamId OR m.awayTeamId = t.teamId WHERE t.name = 'Real Madrid';"}
